@@ -1,0 +1,24 @@
+name: Upbank-API-Finance
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: upbank_db
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    ports:
+      - "5432:5432"
+    volumes:  
+      - db-data:/var/lib/postgresql/data
+    
+volumes:
+  db-data:
+

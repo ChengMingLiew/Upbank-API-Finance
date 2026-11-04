@@ -16,12 +16,17 @@ dependencies = [
     "psycopg[binary]>=3.3.7",
     "pydantic>=2.14.2",
     "pydantic-settings>=2.16.2",
+    "python-dotenv>=1.2.4",
     "sqlalchemy>=2.1.6",
     "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]
-upbank-api-finance = "upbank_api_finance:main"
+upbank-api-finance = "apps:main"
+
+[tool.uv.build-backend]
+module-name = "apps"
+module-root = ""
 
 [build-system]
 requires = ["uv_build>=0.12.17,<0.13.0"]
