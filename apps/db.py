@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
-from config import settings
+from apps.config import settings
 
 engine = create_engine(settings.database_url, pool_pre_ping=True, echo=True)
 
