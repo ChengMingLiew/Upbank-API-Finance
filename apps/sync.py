@@ -7,6 +7,8 @@ from apps.models.account import Account
 from apps.schemas.accounts import AccountResource
 from apps.models.category import Category
 from apps.schemas.categories import CategoryResource
+from apps.schemas.transactions import TransactionResource
+from apps.models.transaction import Transaction
 
 
 def build_account_rows(account_list: list[AccountResource]) -> list[dict]:
@@ -101,6 +103,92 @@ def sync_categories() -> int:
             "parent_id": stmt.excluded.parent_id
         },
     )
+    with session_scope() as session:
+        session.execute(stmt)
+
+    return len(rows)
+
+def build_transaction_rows(transaction_list: list[TransactionResource]) -> list[dict]:
+
+    rows = []
+
+    for transaction in transaction_list:
+
+        row = {}
+        row["id"] = transaction.id
+        row["status"] = transaction.attributes.status
+
+        if transaction.attributes.raw_text is None:
+            row["raw_text"] = None
+        else:
+            row["raw_text"] = transaction.attributes.raw_text
+
+        row["description"] = transaction.attributes.description
+        row["message"] = transaction.attributes.message
+        row["currency_code"] = transaction.attributes.amount.currency_code
+        row["amount_cents"] = transaction.attributes.amount.value_in_base_units
+
+        if transaction.attributes.foreign_amount is None:
+            row["foreign_currency_code"] = None
+            row["foreign_amount_cents"] = None
+        else:
+            row["foreign_currency_code"] = transaction.attributes.foreign_amount.currency_code
+            row["foreign_amount_cents"] = transaction.attributes.foreign_amount.value_in_base_units
+
+        if transaction.attributes.settled_at is None:
+            row["settled_at"] = None
+        else:
+            row["settled_at"] = transaction.attributes.settled_at
+
+        row["created_at"] = transaction.attributes.created_at
+        row["account_id"] = transaction.relationships.account.data.id
+
+        if transaction.relationships.transfer_account.data is None:
+            row["transfer_account_id"] = None
+        else:
+            row["transfer_account_id"] = transaction.relationships.transfer_account.data.id
+
+        if transaction.relationships.category.data is None:
+            row["category_id"] = None
+        else:
+            row["category_id"] = transaction.relationships.category.data.id
+
+        rows.append(row)
+
+    return rows
+
+def sync_transactions() -> int:
+
+    up_client = UpClient()
+
+    try:
+        transactions = up_client.list_transactions()
+    finally:
+        up_client.close()
+
+    if not transactions:
+        return 0
+
+    rows = build_transaction_rows(transactions)
+    stmt = insert(Transaction).values(rows)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=[Transaction.id],
+        set_={
+            "status": stmt.excluded.status,
+            "raw_text": stmt.excluded.raw_text,
+            "description": stmt.excluded.description,
+            "message": stmt.excluded.message,
+            "currency_code": stmt.excluded.currency_code,
+            "amount_cents": stmt.excluded.amount_cents,
+            "foreign_currency_code": stmt.excluded.foreign_currency_code,
+            "foreign_amount_cents": stmt.excluded.foreign_amount_cents,
+            "settled_at": stmt.excluded.settled_at,
+            "category_id": stmt.excluded.category_id,
+            "transfer_account_id": stmt.excluded.transfer_account_id,
+            "synced_at": func.now(),
+        },
+    )
+
     with session_scope() as session:
         session.execute(stmt)
 

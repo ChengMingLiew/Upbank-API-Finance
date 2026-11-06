@@ -24,7 +24,6 @@ class Transaction(Base):
     account_id: Mapped[str] = mapped_column(ForeignKey("accounts.id"), index=True)
     transfer_account_id: Mapped[str | None] = mapped_column(ForeignKey("accounts.id"))
     category_id: Mapped[str | None] = mapped_column(ForeignKey("categories.id"), index=True)
-    raw: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     synced_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
