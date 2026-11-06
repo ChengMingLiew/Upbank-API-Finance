@@ -2,12 +2,14 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert
 
 from apps.up_client import UpClient
+from apps.db import session_scope
 from apps.models.account import Account
 from apps.schemas.accounts import AccountResource
-from apps.db import session_scope
+from apps.models.category import Category
+from apps.schemas.categories import CategoryResource
 
 
-def build_rows(account_list: list[AccountResource]) -> list[dict]:
+def build_account_rows(account_list: list[AccountResource]) -> list[dict]:
 
     rows = []
 
@@ -35,10 +37,10 @@ def sync_accounts() -> int:
     finally:
         up_client.close()
 
-    if accounts is []:
+    if not accounts:
         return 0
 
-    rows = build_rows(accounts)
+    rows = build_account_rows(accounts)
     stmt = insert(Account).values(rows)
     stmt = stmt.on_conflict_do_update(
         index_elements=[Account.id],
@@ -52,6 +54,53 @@ def sync_accounts() -> int:
         },
     )
 
+    with session_scope() as session:
+        session.execute(stmt)
+
+    return len(rows)
+
+
+def build_category_rows(category_list: list[CategoryResource]) -> list[dict]:
+
+    rows = []
+
+    for category in category_list:  
+
+        row = {}
+        row["id"] = category.id
+        row["name"] = category.attributes.name
+
+        if category.relationships.parent.data is None:
+            row["parent_id"] = None
+        else:
+            row["parent_id"] = category.relationships.parent.data.id
+
+        rows.append(row)
+
+    return rows
+
+
+def sync_categories() -> int:
+
+    up_client = UpClient()
+
+    try:
+        categories = up_client.list_categories()
+    finally:
+        up_client.close()
+
+    if not categories:
+        return 0
+
+    rows = build_category_rows(categories)
+    stmt = insert(Category).values(rows)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=[Category.id],
+        set_={
+            "name": stmt.excluded.name,
+            "parent_id": stmt.excluded.parent_id
+        },
+    )
     with session_scope() as session:
         session.execute(stmt)
 

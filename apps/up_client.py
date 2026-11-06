@@ -72,7 +72,7 @@ class UpClient:
         response = self._get(url="/categories")
         page = CategoriesPage.model_validate_json(response.text)
 
-        return page
+        return page.data
 
     def close(self) -> None:
         self.http.close()
