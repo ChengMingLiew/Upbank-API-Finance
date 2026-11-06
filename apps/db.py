@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from apps.config import settings
@@ -22,9 +22,3 @@ def get_session():
         db.close()
 
 session_scope = contextmanager(get_session)
-
-if __name__ == "__main__":
-
-    with session_scope() as session:
-        result = session.execute(select(1))
-        print("Database connection OK:", result.scalar())
