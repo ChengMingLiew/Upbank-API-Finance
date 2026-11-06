@@ -1,12 +1,9 @@
 from datetime import datetime
 
 from sqlalchemy import BigInteger, DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-
-class Base(DeclarativeBase):
-    pass
-
+from apps.models.base import Base
 
 class Account(Base):
     __tablename__ = "accounts"
