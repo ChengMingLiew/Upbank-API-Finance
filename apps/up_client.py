@@ -1,8 +1,10 @@
 import httpx
+from datetime import datetime
 
 from apps.config import settings
 from apps.schemas.accounts import AccountResource, AccountsPage
-from apps.schemas.categories import CategoryResource, CategoriesPage
+from apps.schemas.categories import CategoriesPage, CategoryResource
+from apps.schemas.transactions import TransactionsPage, TransactionResource
 
 BASE_URL = "https://api.up.com.au/api/v1"
 
@@ -67,12 +69,38 @@ class UpClient:
 
         return accounts
 
-    def list_categories(self) -> CategoriesPage:
+    def list_categories(self) -> list[CategoryResource]:
 
         response = self._get(url="/categories")
         page = CategoriesPage.model_validate_json(response.text)
 
         return page.data
+
+    def list_transactions(self, status: str | None = None, 
+                                since: datetime | None = None, 
+                                category: str | None = None) -> list[TransactionResource]:
+
+        params = {"page[size]": 100}
+        if status is not None:
+            params["filter[status]"] = status
+        if since is not None:
+            params["filter[since]"] = since.isoformat()
+        if category is not None:
+            params["filter[category]"] = category
+
+        transactions: list[TransactionResource] = []
+        response = self._get(url="/transactions", params=params)
+
+        while True:
+            page = TransactionsPage.model_validate_json(response.text)
+            transactions.extend(page.data)
+
+            if page.links.next is None:
+                break
+
+            response = self._get(url=page.links.next)
+
+        return  transactions
 
     def close(self) -> None:
         self.http.close()
