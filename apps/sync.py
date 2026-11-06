@@ -2,8 +2,8 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert
 
 from apps.up_client import UpClient
-from apps.models import Account
-from apps.schemas import AccountResource
+from apps.models.account import Account
+from apps.schemas.accounts import AccountResource
 from apps.db import session_scope
 
 

@@ -1,7 +1,8 @@
 import httpx
 
 from apps.config import settings
-from apps.schemas import AccountResource, AccountsPage
+from apps.schemas.accounts import AccountResource, AccountsPage
+from apps.schemas.categories import CategoryResource, CategoriesPage
 
 BASE_URL = "https://api.up.com.au/api/v1"
 
@@ -65,6 +66,13 @@ class UpClient:
             response = self._get(url=page.links.next)
 
         return accounts
+
+    def list_categories(self) -> CategoriesPage:
+
+        response = self._get(url="/categories")
+        page = CategoriesPage.model_validate_json(response.text)
+
+        return page
 
     def close(self) -> None:
         self.http.close()
