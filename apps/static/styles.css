@@ -87,3 +87,28 @@ th {
 .amount.negative {
     color: var(--negative);
 }
+
+.muted {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.pagination a {
+    color: var(--accent);
+    text-decoration: none;
+}

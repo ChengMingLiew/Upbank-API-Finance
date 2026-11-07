@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions · Up Finance{% endblock %}
+
+{% block content %}
+<h1>Transactions</h1>
+
+{% if transactions %}
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Account</th>
+            <th>Status</th>
+            <th class="amount">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.created_at.strftime("%d %b %Y") }}</td>
+            <td>
+                {{ transaction.description }}
+                {% if transaction.message %}
+                <div class="muted">{{ transaction.message }}</div>
+                {% endif %}
+            </td>
+            <td>
+                {% if transaction.category_id %}
+                {{ transaction.category_id | replace("-", " ") | title }}
+                {% else %}
+                —
+                {% endif %}
+            </td>
+            <td>{{ transaction.account_name }}</td>
+            <td>
+                {% if transaction.status == "HELD" %}
+                <span class="badge">Pending</span>
+                {% else %}
+                Settled
+                {% endif %}
+            </td>
+            <td class="amount {{ 'negative' if transaction.amount_cents < 0 else 'positive' }}">
+                {{ transaction.amount_cents | money }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<nav class="pagination">
+    {% if page > 1 %}
+    <a href="?page={{ page - 1 }}">← Newer</a>
+    {% endif %}
+    {% if has_next %}
+    <a href="?page={{ page + 1 }}">Older →</a>
+    {% endif %}
+</nav>
+{% else %}
+<p>No transactions yet. Run a sync to import them from Up.</p>
+{% endif %}
+{% endblock %}
