@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Up Finance{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a href="/" class="brand">Up Finance</a>
+        <nav class="site-nav">
+            <a href="/accounts">Accounts</a>
+            <a href="/transactions">Transactions</a>
+            <a href="/spending">Spending</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
