@@ -32,7 +32,7 @@
     <tbody>
         {% for transaction in transactions %}
         <tr>
-            <td>{{ transaction.created_at.strftime("%d %b %Y") }}</td>
+            <td><td>{{ transaction.created_at | local_date }}</td></td>
             <td>
                 {{ transaction.description }}
                 {% if transaction.message %}

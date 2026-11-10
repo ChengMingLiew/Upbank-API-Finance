@@ -31,6 +31,13 @@ def money(amount_in_cents: int) -> str:
 templates.env.filters["money"] = money
 
 
+def local_date(value: datetime) -> str:
+    return value.astimezone(LOCAL_TZ).strftime("%d %b %Y")
+
+
+templates.env.filters["local_date"] = local_date
+
+
 def month_range(year_month: str) -> tuple[datetime, datetime]:
     """Turn 'YYYY-MM' into [start of month, start of next month) in local time."""
     year, month = map(int, year_month.split("-"))
