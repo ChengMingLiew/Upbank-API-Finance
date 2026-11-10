@@ -5,6 +5,18 @@
 {% block content %}
 <h1>Transactions</h1>
 
+<form method="get" action="/transactions" class="filters">
+    <label for="month-select">Month</label>
+    <select name="year_month" id="month-select" onchange="this.form.submit()">
+        <option value="">All months</option>
+        {% for option in month_options %}
+        <option value="{{ option.value }}" {% if option.value == year_month %}selected{% endif %}>
+            {{ option.label }}
+        </option>
+        {% endfor %}
+    </select>
+</form>
+
 {% if transactions %}
 <table>
     <thead>
@@ -27,13 +39,7 @@
                 <div class="muted">{{ transaction.message }}</div>
                 {% endif %}
             </td>
-            <td>
-                {% if transaction.category_id %}
-                {{ transaction.category_id | replace("-", " ") | title }}
-                {% else %}
-                —
-                {% endif %}
-            </td>
+            <td>{{ (transaction.category_id or "—") | replace("-", " ") | title }}</td>
             <td>{{ transaction.account_name }}</td>
             <td>
                 {% if transaction.status == "HELD" %}
@@ -52,13 +58,22 @@
 
 <nav class="pagination">
     {% if page > 1 %}
-    <a href="?page={{ page - 1 }}">← Newer</a>
+    <a href="?year_month={{ year_month }}&page={{ page - 1 }}">← Newer</a>
+    {% else %}
+    <span></span>
     {% endif %}
+
     {% if has_next %}
-    <a href="?page={{ page + 1 }}">Older →</a>
+    <a href="?year_month={{ year_month }}&page={{ page + 1 }}">Older →</a>
     {% endif %}
 </nav>
 {% else %}
-<p>No transactions yet. Run a sync to import them from Up.</p>
+<p class="muted">
+    {% if year_month %}
+    No transactions this month.
+    {% else %}
+    No transactions yet. Run a sync to import them from Up.
+    {% endif %}
+</p>
 {% endif %}
 {% endblock %}
