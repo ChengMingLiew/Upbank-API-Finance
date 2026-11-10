@@ -6,11 +6,13 @@
 {% block header %}{% endblock %}
 {% block content %}
 <div class="error-card">
-    <img
+    <a href="/home">
+    <img 
         class="error-logo"
         src="{{ url_for('assets', path='images/UP_CORE_LOGO.png') }}"
         alt="Logo"
     >
+    </a>
     <p class="error-code">{{ error.status_code }}</p>
     <h1 class="error-title">
         {% if error.status_code == 404 %}
