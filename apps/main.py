@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -120,7 +121,11 @@ def transactions(
         stmt = stmt.where(
             Transaction.created_at >= start,
             Transaction.created_at < end,
-        )
+        ).order_by(Transaction.created_at.asc())
+
+    total = db.scalar(select(func.count()).select_from(stmt.subquery()))
+    total_pages = max(1, math.ceil(total / PAGE_SIZE))
+    page = min(max(page, 1), total_pages)
 
     stmt = (
         stmt.order_by(Transaction.created_at.desc())
@@ -129,12 +134,12 @@ def transactions(
     )
 
     rows = db.execute(stmt).all()
-
     return templates.TemplateResponse(
         request,
         "transactions.html",
         context={
             "transactions": rows[:PAGE_SIZE],
+            "total_pages": total_pages,
             "page": page,
             "has_next": len(rows) > PAGE_SIZE,
             "month_options": get_month_options(db),

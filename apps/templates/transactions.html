@@ -18,6 +18,15 @@
 </form>
 
 {% if transactions %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="?year_month={{ year_month }}&page={{ page - 1 }}">&laquo; Previous</a>
+  {% endif%}
+  {% if page < total_pages %}
+  <a href="?year_month={{ year_month }}&page={{ page + 1 }}" class="next">Next &raquo;</a>
+  {% endif %}
+</div>
+
 <table>
     <thead>
         <tr>
@@ -55,18 +64,6 @@
         {% endfor %}
     </tbody>
 </table>
-
-<nav class="pagination">
-    {% if page > 1 %}
-    <a href="?year_month={{ year_month }}&page={{ page - 1 }}">← Newer</a>
-    {% else %}
-    <span></span>
-    {% endif %}
-
-    {% if has_next %}
-    <a href="?year_month={{ year_month }}&page={{ page + 1 }}">Older →</a>
-    {% endif %}
-</nav>
 {% else %}
 <p class="muted">
     {% if year_month %}
