@@ -185,3 +185,57 @@ td {
     vertical-align: middle;
     white-space: nowrap;
 }
+
+.error-page {
+    background: var(--up-orange);
+    min-height: 100vh;
+}
+
+.error-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 72px 16px;
+    color: #ffffff;
+}
+
+.error-logo {
+    width: 96px;
+    height: auto;
+    margin-bottom: 24px;
+}
+
+.error-code {
+    margin: 0;
+    font-size: 6rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--up-dark);
+}
+
+.error-title {
+    margin: 12px 0 8px;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.error-message {
+    margin: 0 0 28px;
+    font-size: 1.05rem;
+    opacity: 0.9;
+}
+
+.error-button {
+    display: inline-block;
+    padding: 12px 22px;
+    background: var(--up-dark);
+    color: #ffffff;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.error-button:hover {
+    background: #000000;
+}

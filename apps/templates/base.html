@@ -9,7 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
+    {% block header %}
     <header class="site-header">
         <a href="/" class="brand">Up Finance</a>
         <nav class="site-nav">
@@ -18,6 +19,7 @@
             <a href="/spending">Spending</a>
         </nav>
     </header>
+    {% endblock %}
 
     <main class="content">
         {% block content %}{% endblock %}

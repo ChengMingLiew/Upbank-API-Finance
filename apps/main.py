@@ -3,6 +3,8 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import HTMLResponse
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +22,13 @@ PAGE_SIZE = 10
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return templates.TemplateResponse(request, "error_page.html", status_code=exc.status_code, context={"error": exc})
 
 
 def money(amount_in_cents: int) -> str:
@@ -78,8 +86,11 @@ def get_month_options(db: Session) -> list[dict[str, str]]:
 
 @app.get("/")
 def home():
-    return RedirectResponse(url="/accounts")
+    return RedirectResponse(url="/home")
 
+@app.get("/home")
+def home(request: Request):
+    return templates.TemplateResponse(request, "home.html")
 
 @app.get("/accounts")
 def accounts(request: Request, db: Session = Depends(get_session)):
