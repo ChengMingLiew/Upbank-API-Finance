@@ -1,14 +1,16 @@
 import math
-from datetime import datetime
+import calendar
+from datetime import datetime, date
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import simplejson as json
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.responses import HTMLResponse
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import extract, func, select
 from sqlalchemy.orm import Session
 
@@ -23,9 +25,7 @@ PAGE_SIZE = 10
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
-app.mount("/templates", StaticFiles(directory=BASE_DIR / "templates"), name="templates")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
-
 
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
@@ -159,7 +159,39 @@ def transactions(
         },
     )
 
-@app.get("/spending")
-def spending(request: Request):
+def spending_string(transactions: list):
 
-    return templates.TemplateResponse(request, "spending.html")
+    updated_transactions = [
+        {
+            "x": calendar.month_name[int(json.dumps(month))],
+            "y": float(json.dumps(abs(amount) / 100, use_decimal=True)),
+        }
+        for month, amount, *_ in transactions
+    ]
+
+    return updated_transactions
+
+@app.get("/spending")
+def spending(request: Request, year: int = 2025, db: Session = Depends(get_session),):
+
+
+    month_expr = extract("month", Transaction.created_at).label("month")
+
+    stmt = (
+        select(
+            month_expr,
+            func.sum(Transaction.amount_cents,)
+            )
+            .where(Transaction.status == "SETTLED")
+            .where(extract("year", Transaction.created_at) == year)
+            .where(Transaction.amount_cents < 0)
+            .group_by(month_expr)
+            .order_by(month_expr.asc())
+    )
+
+    rows = db.execute(stmt).all()
+    print(rows)
+    updated_transactions = spending_string(rows)
+    print(updated_transactions)
+
+    return templates.TemplateResponse(request, "spending.html", {"transactions": updated_transactions, "year": year})
