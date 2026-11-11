@@ -23,6 +23,7 @@ PAGE_SIZE = 10
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
+app.mount("/templates", StaticFiles(directory=BASE_DIR / "templates"), name="templates")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 
@@ -152,8 +153,13 @@ def transactions(
             "transactions": rows[:PAGE_SIZE],
             "total_pages": total_pages,
             "page": page,
-            "has_next": len(rows) > PAGE_SIZE,
+            "has_next": len(rows) > PAGE_SIZE,  
             "month_options": get_month_options(db),
             "year_month": year_month or "",
         },
     )
+
+@app.get("/spending")
+def spending(request: Request):
+
+    return templates.TemplateResponse(request, "spending.html")

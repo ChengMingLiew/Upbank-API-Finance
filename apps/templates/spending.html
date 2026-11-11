@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "base.html" %}
+{% block content %}
+<head>
+
+</head>
+<body>
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('templates', path='line_script.js') }}"></script>
+</body>
+{% endblock %}
+
+</html>
